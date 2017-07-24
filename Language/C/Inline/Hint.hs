@@ -83,8 +83,8 @@ haskellTypeOf (Typed name)
   = do
     { info <- reify name
     ; case info of
-        ClassOpI _ ty _ _ -> return ty
-        VarI     _ ty _ _ -> return ty
+        ClassOpI _ ty _ -> return ty
+        VarI     _ ty _ -> return ty
         nonVarInfo    ->
           do
           { reportErrorAndFail QC.C11 $

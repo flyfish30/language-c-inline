@@ -218,7 +218,7 @@ prop --> fieldName = prop ==> (fieldTy,
       = do
         { info <- reify fieldName
         ; case info of
-            VarI _ (ArrowT `AppT` _ `AppT` resTy) _ _ -> return resTy
+            VarI _ (ArrowT `AppT` _ `AppT` resTy) _ -> return resTy
             nonVarInfo ->
               do
               { reportErrorAndFail QC.ObjC $
@@ -397,10 +397,10 @@ objc_marshaller haskellToObjCName objcToHaskellName
       = do
         { info <- reify name
         ; case info of
-            VarI _ (ArrowT `AppT` argTy `AppT` (ConT io `AppT` resTy)) _ _
+            VarI _ (ArrowT `AppT` argTy `AppT` (ConT io `AppT` resTy)) _
               | io == ''IO
               -> return (argTy, resTy)
-            VarI _ _ _ _ -> reportErrorAndFail QC.ObjC $
+            VarI _ _ _ -> reportErrorAndFail QC.ObjC $
                                show name ++ "'s type must match 'a -> IO r'"
             _            -> reportErrorAndFail QC.ObjC $
                                show name ++ " must be a function"
@@ -588,11 +588,11 @@ objc_emit
         do
         { writeFile  objcFname_h (info origFname)
         ; appendFile objcFname_h (unlines (map mkImport headers) ++ "\n")
-        ; appendFile objcFname_h (show $ QC.ppr objc_h)
+        ; appendFile objcFname_h (pretty 100 $ QC.ppr objc_h)
         ; writeFile  objcFname_m (info origFname)
         ; appendFile objcFname_m ("#import \"" ++ takeFileName objcFname_h ++ "\"\n")
         ; appendFile objcFname_m ("#import \"HsFFI.h\"\n\n")
-        ; appendFile objcFname_m (show $ QC.ppr objc_m)
+        ; appendFile objcFname_m (pretty 100 $ QC.ppr objc_m)
         }
     ; objc_jumptable <- getForeignTable
     ; labels         <- getForeignLabels

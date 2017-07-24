@@ -106,10 +106,10 @@ decomposeForeignPtrWrapper ty
     }
   where
     reifyUntilFixedPoint args name
-      = do 
+      = do
         { info <- reify name
         ; case info of
-            TyConI (NewtypeD [] _name tvs (NormalC dataconName [(_strict, ConT fptr `AppT` ptrArg)]) _deriv)
+            TyConI (NewtypeD [] _name tvs mayKd (NormalC dataconName [(_strict, ConT fptr `AppT` ptrArg)]) _deriv)
               | fptr == ''ForeignPtr
               -> return (dataconName, substitute (zip args tvs) ptrArg)
             TyConI (TySynD _name tvs (headTyConName -> Just name'))
@@ -117,7 +117,7 @@ decomposeForeignPtrWrapper ty
                  { (dcname, type0) <- reifyUntilFixedPoint (drop (length tvs) args) name'
                  ; return (dcname, substitute (zip args tvs) type0)
                  }
-            nonForeign -> 
+            nonForeign ->
               do
               { reportErrorAndFail QC.ObjC $
                   "expected '" ++ show name ++ "' to refer to a 'ForeignPtr' wrapped into a newtype, but it is " ++
